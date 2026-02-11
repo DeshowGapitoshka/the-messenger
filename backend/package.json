@@ -1,0 +1,35 @@
+{
+    "name": "backend",
+    "version": "0.0.1",
+    "description": "The server for out messenger",
+    "main": "../out",
+    "type": "commonjs",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/surpri6e/basic-messenger.git"
+    },
+    "scripts": {
+        "dev": "tsc && node src/index.js",
+        "build": "tsc",
+        "deploy": "npm pulish"
+    },
+    "author": "surpri6e",
+    "license": "MIT",
+    "devDependencies": {
+        "@types/node": "^20.14.2",
+        "nodemon": "^3.1.11",
+        "prettier": "^3.3.2"
+    },
+    "dependencies": {
+        "typescript": "^5.4.5"
+    },
+    "keywords": [
+        "basic structure",
+        "file structure",
+        "structure of files"
+    ],
+    "bugs": {
+        "url": "https://github.com/surpri6e/basic-structure/issues"
+    },
+    "homepage": "https://github.com/surpri6e/basic-structure#readme"
+}

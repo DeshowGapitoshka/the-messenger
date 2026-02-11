@@ -1,4 +1,4 @@
-.sass-cache/
-*.css.map
-*.sass.map
-*.scss.map
+frontend/node_modules/
+
+backend/node_modules/
+backend/.env
