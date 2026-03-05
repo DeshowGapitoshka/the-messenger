@@ -8,15 +8,16 @@ import (
 )
 
 type Message struct {
-	Data string
-	Id   int
+	id      int
+	User_id int
+	Data    string
 }
 
 func main() {
 	var postData Message
 	fmt.Print("Введите сообщение: ")
 	fmt.Scan(&postData.Data)
-	postData.Id = 0
+	postData.User_id = 666
 
 	// Convert to JSON
 	jsonData, err := json.Marshal(postData)
@@ -25,7 +26,7 @@ func main() {
 	}
 
 	resp, err := http.Post(
-		"http://localhost:8080/messages",
+		"http://localhost:8050/messages",
 		"application/json",
 		bytes.NewBuffer(jsonData),
 	)
