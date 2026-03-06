@@ -5,20 +5,21 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	main2 "server/database"
 )
 
 type Message struct {
-	Data string
-	Id   int
+	Id      int
+	User_id int
+	Data    string
 }
 
-var messages []Message
-
 func main() {
+	main2.StartServer()
 	http.HandleFunc("/messages", messageHandler)
 	http.HandleFunc("/health", checkHealth)
-	log.Print("Listening on port 8080")
-	err := http.ListenAndServe(":8080", nil)
+	log.Print("Listening on port 8050")
+	err := http.ListenAndServe("localhost:8050", nil)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -36,8 +37,9 @@ func messageHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func getMessage(w http.ResponseWriter, r *http.Request) {
+	message := main2.OutputFromBase()
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(messages)
+	json.NewEncoder(w).Encode(message)
 }
 
 func postMessage(w http.ResponseWriter, r *http.Request) {
@@ -47,7 +49,7 @@ func postMessage(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	messages = append(messages, message)
+	main2.InputInBase(message.User_id, message.Data)
 	fmt.Fprintf(w, "post new message '%v'", message)
 }
 
