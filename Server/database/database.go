@@ -2,8 +2,10 @@ package database
 
 import (
 	"database/sql"
-
+	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
+	"os"
+	"log"
 )
 
 type Message struct {
@@ -14,18 +16,19 @@ type Message struct {
 
 var messages []Message
 
-const (
-	connToPG = "user=Deshow password=12345 dbname=messanger sslmode=disable"
-)
-
 var database *sql.DB
 
 func init() {
 	var err error
-	database, err = sql.Open("postgres", connToPG)
-	if err != nil {
-		panic(err)
+	err = godotenv.Load()
+	errorHandler(err)
+	connToPG := os.Getenv("DB_CONNTOPG")
+	if connToPG == ""{
+		log.Fatal("connToPG is empty")
 	}
+
+	database, err = sql.Open("postgres", connToPG)
+	errorHandler(err)
 }
 
 func errorHandler(err error) {
@@ -35,17 +38,31 @@ func errorHandler(err error) {
 }
 
 func StartServer() {
-	_, err := database.Exec("CREATE TABLE IF NOT EXISTS messager (id SERIAL PRIMARY KEY, user_id INTEGER NOT NULL, message TEXT)")
+	var err error
+	dbConf := os.Getenv("DB_TABLECONF")
+	if dbConf == ""{
+		log.Fatal("dbConf is Empty")
+	}
+	_, err = database.Exec(dbConf)
 	errorHandler(err)
 }
 
 func InputInBase(user_id int, message string) {
-	_, err := database.Exec("INSERT INTO messager (user_id, message) VALUES ($1, $2)", user_id, message)
+	dbInsert := os.Getenv("DB_INSERTMES")
+	if dbInsert == ""{
+		log.Fatal("dbInsert is empty")
+	}
+	var err error
+	_, err = database.Exec(dbInsert, user_id, message)
 	errorHandler(err)
 }
 
 func OutputFromBase() []Message {
-	rows, err := database.Query("SELECT id, user_id, message FROM messager")
+	dbOutput := os.Getenv("DB_OUTPUTMES")
+	if dbOutput == ""{
+		log.Fatal("dbOutput is empty")
+	}
+	rows, err := database.Query(dbOutput)
 	errorHandler(err)
 	defer rows.Close()
 	var messages []Message
