@@ -6,6 +6,7 @@ import (
 	_ "github.com/lib/pq"
 	"os"
 	"log"
+	"strconv"
 )
 
 type Message struct {
@@ -22,7 +23,7 @@ func init() {
 	var err error
 	err = godotenv.Load()
 	errorHandler(err)
-	connToPG := os.Getenv("DB_CONNTOPG")
+	connToPG := os.Getenv("DB_CONNECT_TO_BASEDATA")
 	if connToPG == ""{
 		log.Fatal("connToPG is empty")
 	}
@@ -39,7 +40,7 @@ func errorHandler(err error) {
 
 func StartServer() {
 	var err error
-	dbConf := os.Getenv("DB_TABLECONF")
+	dbConf := os.Getenv("DB_TABLE_CONFIG")
 	if dbConf == ""{
 		log.Fatal("dbConf is Empty")
 	}
@@ -48,7 +49,7 @@ func StartServer() {
 }
 
 func InputInBase(user_id int, message string) {
-	dbInsert := os.Getenv("DB_INSERTMES")
+	dbInsert := os.Getenv("DB_INSERT_MESSAGE")
 	if dbInsert == ""{
 		log.Fatal("dbInsert is empty")
 	}
@@ -58,7 +59,7 @@ func InputInBase(user_id int, message string) {
 }
 
 func OutputFromBase() []Message {
-	dbOutput := os.Getenv("DB_OUTPUTMES")
+	dbOutput := os.Getenv("DB_OUTPUT_MESSAGES")
 	if dbOutput == ""{
 		log.Fatal("dbOutput is empty")
 	}
@@ -73,4 +74,13 @@ func OutputFromBase() []Message {
 		messages = append(messages, message)
 	}
 	return messages
+}
+
+func OutputFromBaseID(number string) Message{
+	var message Message
+	dbOutputID := os.Getenv("DB_OUTPUT_ID_MESSAGE")
+	id,_ := strconv.Atoi(number)
+	row := database.QueryRow(dbOutputID,id)
+	row.Scan(&message.Id,&message.User_id,&message.Data)
+	return message
 }
