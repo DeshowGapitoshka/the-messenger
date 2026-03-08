@@ -1,0 +1,29 @@
+@use "../../utils/styles/vars.scss";
+
+.sidebar {
+  height: 100%;
+  width: 120px;
+
+  background-color: vars.$purple;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  padding: 10px;
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+
+  & > *:not(:last-child) {
+    margin-bottom: 15px;
+  }
+}
+
+.bottom {
+  display: flex;
+  justify-content: center;
+}
