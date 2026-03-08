@@ -5,13 +5,18 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	main2 "server/database"
-)
+	main2 "server/database")
 
 type Message struct {
 	Id      int
 	User_id int
 	Data    string
+}
+
+type Person struct {
+	Id int
+	Login string
+	Password string
 }
 
 // Connection to BD and starting server
@@ -20,6 +25,8 @@ func main() {
 	http.HandleFunc("/messages", messageHandler)
 	http.HandleFunc("/getmessage", getMessage)
 	http.HandleFunc("/health", checkHealth)
+	http.HandleFunc("/register", Register)
+	http.HandleFunc("/getaccount",getPerson)
 	log.Print("Listening on port 8050")
 	err := http.ListenAndServe("localhost:8050", nil)
 	if err != nil {
@@ -63,6 +70,25 @@ func postMessage(w http.ResponseWriter, r *http.Request) {
 	}
 	main2.InputInBase(message.User_id, message.Data)
 	fmt.Fprintf(w, "post new message '%v'", message)
+}
+
+
+func Register(w http.ResponseWriter, r *http.Request) {
+	var person Person
+	err := json.NewDecoder(r.Body).Decode(&person)
+	if err != nil{
+		http.Error(w,err.Error(), http.StatusBadRequest)
+		return
+	}
+	main2.InputInBasePerson(person.Login,person.Password)
+	fmt.Fprintf(w, "Registred new account '%v'", person)
+}
+
+func getPerson(w http.ResponseWriter,r *http.Request){
+	id := r.URL.Query().Get("id")
+	person := main2.OutputFromBaseIdPerson(id)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(person)
 }
 
 // Check the server status
