@@ -5,7 +5,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	main2 "server/database")
+	main2 "server/database"
+)
 
 type Message struct {
 	Id      int
@@ -14,8 +15,8 @@ type Message struct {
 }
 
 type Person struct {
-	Id int
-	Login string
+	Id       int
+	Login    string
 	Password string
 }
 
@@ -24,11 +25,12 @@ func main() {
 	main2.StartServer()
 	http.HandleFunc("/messages", messageHandler)
 	http.HandleFunc("/getmessage", getMessage)
-	http.HandleFunc("/health", checkHealth)
-	http.HandleFunc("/register", Register)
-	http.HandleFunc("/getaccount",getPerson)
-	log.Print("Listening on port 8050")
-	err := http.ListenAndServe("localhost:8050", nil)
+	http.HandleFunc("/api/health", checkHealth)
+	http.HandleFunc("/api/register", register)
+	http.HandleFunc("/api/login", login)
+	http.HandleFunc("/getaccount", getPerson)
+	log.Print("Listening on port 8080")
+	err := http.ListenAndServe("localhost:8080", nil)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -72,19 +74,37 @@ func postMessage(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "post new message '%v'", message)
 }
 
-
-func Register(w http.ResponseWriter, r *http.Request) {
+func register(w http.ResponseWriter, r *http.Request) {
 	var person Person
 	err := json.NewDecoder(r.Body).Decode(&person)
-	if err != nil{
-		http.Error(w,err.Error(), http.StatusBadRequest)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	main2.InputInBasePerson(person.Login,person.Password)
-	fmt.Fprintf(w, "Registred new account '%v'", person)
+	result := main2.InputInBasePerson(person.Login, person.Password)
+	if result == true {
+		fmt.Fprintf(w, "Registred new account")
+	} else {
+		fmt.Fprintf(w, "This account already exists")
+	}
 }
 
-func getPerson(w http.ResponseWriter,r *http.Request){
+func login(w http.ResponseWriter, r *http.Request) {
+	var person Person
+	err := json.NewDecoder(r.Body).Decode(&person)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	result := main2.CheckLogin(person.Login, person.Password)
+	if result == true {
+		fmt.Fprintf(w, "Вход выполнен успешно")
+	} else {
+		fmt.Fprintf(w, "Неправильный логин или пароль")
+	}
+}
+
+func getPerson(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("id")
 	person := main2.OutputFromBaseIdPerson(id)
 	w.Header().Set("Content-Type", "application/json")
