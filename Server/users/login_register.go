@@ -88,9 +88,8 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		}
 		fmt.Fprintf(w, "%s", jsonData)
 		return
-
-	case 404:
-		w.WriteHeader(404)
+	case 409:
+		w.WriteHeader(409)
 		return
 
 	default:
@@ -172,7 +171,7 @@ func loginPost(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func loginGet(w http.ResponseWriter, r *http.Request) {
+func loginGet(w http.ResponseWriter, r *http.Request) { // странная логика
 	w.Header().Set("Content-Type", "application/json")
 	cookie, err := r.Cookie("token")
 	fmt.Println(cookie)
@@ -194,6 +193,42 @@ func loginGet(w http.ResponseWriter, r *http.Request) {
 		response := Response{
 			Status:  200,
 			Message: "Вы успешно получили свои данные",
+			Body:    data,
+		}
+		jsonData, err := json.Marshal(response)
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
+		fmt.Fprintf(w, "%s", jsonData)
+		return
+	}
+	if status == 500 {
+		w.WriteHeader(500)
+		return
+	}
+}
+func GetUserDataById(w http.ResponseWriter, r *http.Request) {
+	cookie, err := r.Cookie("token")
+	fmt.Println(cookie)
+	if err != nil {
+		w.WriteHeader(429)
+		return
+	}
+	token := fmt.Sprint(cookie)
+	if token == "nil" {
+		w.WriteHeader(500)
+		return
+	}
+	token = token[6:]
+	user_id := tokens.CheckToken(token)
+
+	status, data := users.GetUserDataById(user_id)
+
+	if status == 200 {
+		response := Response{
+			Status:  200,
+			Message: "Успешно получены данные о конкретном пользователе",
 			Body:    data,
 		}
 		jsonData, err := json.Marshal(response)

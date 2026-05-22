@@ -105,7 +105,7 @@ func InputInBasePerson(email string, password string, username string) int {
 		}
 		return 200
 	}
-	return 404
+	return 409
 }
 
 func Login(email string, password string) (int, string) {
@@ -168,6 +168,28 @@ func GetAllData(user_id int) (int, *Data) {
 		&data.Is_email_accepted,
 		&data.Is_muted_chats_id,
 		&data.Is_pinned_chats)
+	if err != nil {
+		errorHandler(err)
+		return 500, nil
+	}
+	return 200, &data
+}
+func GetUserDataById(userId int) (int, *Data) {
+	dbQuery := os.Getenv("DB_GET_USER_BY_ID")
+	if dbQuery == "" {
+		log.Fatal("dbQuery is empty")
+		return 500, nil
+	}
+	var data Data
+	err := database.QueryRow(dbQuery, userId).Scan(
+		&data.Username,
+		&data.Info,
+		&data.Avatar_link,
+		&data.Created_at,
+		&data.Is_online,
+		&data.Is_email_accepted,
+		&data.Last_seen,
+	)
 	if err != nil {
 		errorHandler(err)
 		return 500, nil

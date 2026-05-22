@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	lists "server/lists"
 	messages "server/messages"
 	users "server/users"
 	"time"
@@ -23,18 +24,27 @@ type Pole struct {
 func main() {
 	mux := http.NewServeMux()
 	//	mux.HandleFunc("/api/health", checkHealth)
-	mux.HandleFunc("/registration", users.Register)
+	mux.HandleFunc("POST /registration", users.Register)
 	mux.HandleFunc("/auth", users.DistributionMethod)
 	mux.HandleFunc("/messages", messages.PostMessage)
 	mux.HandleFunc("GET /messages/{message_id}", messages.GetMessage)
 	mux.HandleFunc("PUT /messages/{message_id}", messages.PutMessage)
+
+	mux.HandleFunc("POST /chats", lists.CreateNewChat)
+	mux.HandleFunc("POST /groups", lists.CreateNewGroup)
+	mux.HandleFunc("POST /contacts", lists.AddNewContact)
+
+	mux.HandleFunc("GET /userdata", users.GetUserDataById)
+	mux.HandleFunc("GET /chats", lists.GetUserChatsById)
+	mux.HandleFunc("GET /groups", lists.GetUserGroupsById)
+	mux.HandleFunc("GET /contacts", lists.GetUserContactsById)
 
 	// Оборачиваем весь маршрутизатор в CORS
 	handler := enableCORSForMux(mux) //BE2681D73EB0903771C9B2DCC76FCFC04768FF7F
 	handler = LoggingMiddleware(handler)
 
 	log.Print("Listening on port 8080")
-	err := http.ListenAndServeTLS("26.132.220.182:8080", "cert.pem", "key.pem", handler)
+	err := http.ListenAndServeTLS("0.0.0.0:8080", "cert.pem", "key.pem", handler)
 
 	if err != nil {
 		log.Fatal(err)
@@ -63,101 +73,3 @@ func LoggingMiddleware(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r)
 	})
 }
-
-// func DistributionMethod(w http.ResponseWriter, r *http.Request) {
-// 	switch r.Method {
-// 	case http.MethodGet:
-// 		getMessage(w, r)
-// 	case http.MethodPost:
-// 		postMessage(w, r)
-// 	}
-// }
-
-// func postMessage(w http.ResponseWriter, r *http.Request) {
-// 	message := make(map[string]interface{})
-// 	err := json.NewDecoder(r.Body).Decode(&message)
-// 	if err != nil {
-// 		http.Error(w, err.Error(), http.StatusBadRequest)
-// 		return
-// 	}
-// 	sender_id := message["Sender_id"].(float64)
-// 	user_id := message["User_id"].(float64)
-// 	chat_id := message["Chat_id"].(float64)
-// 	text := message["Text"].(string)
-// 	err = main2.InputMessage(sender_id, user_id, chat_id, text)
-// 	if err == nil {
-// 		fmt.Fprintf(w, "OK")
-// 	}
-// 	ResponseWriter()
-// }
-
-// func getMessages(w http.ResponseWriter, r *http.Request) {
-// 	query := r.URL.Query()
-// 	chat_id := query.Get("chat_id")
-// 	// err := json.NewDecoder(r.Body).Decode(&us_ch_id)
-// 	// if err != nil {
-// 	// 	http.Error(w, err.Error(), http.StatusBadRequest)
-// 	// 	return
-// 	// }
-// 	id, err := strconv.Atoi(chat_id)
-// 	result, err := json.Marshal(main2.GetMessages(float64(id)))
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-// 	fmt.Fprintf(w, "%s", result)
-// }
-
-// func getMessage(w http.ResponseWriter, r *http.Request) {
-// 	us_ch_id := make(map[string]interface{})
-// 	err := json.NewDecoder(r.Body).Decode(&us_ch_id)
-// 	if err != nil {
-// 		http.Error(w, err.Error(), http.StatusBadRequest)
-// 		return
-// 	}
-// 	res, err := database.GetMessage(us_ch_id["Sender_id"].(float64), us_ch_id["User_id"].(float64))
-// 	if err != nil {
-// 		fmt.Fprintf(w, "No message in row")
-// 		return
-// 	}
-// 	result, err := json.Marshal(res)
-// 	fmt.Fprintf(w, "%s", result)
-// }
-
-// func register(w http.ResponseWriter, r *http.Request) {
-// 	person := make(map[string]interface{})
-// 	err := json.NewDecoder(r.Body).Decode(&person)
-// 	if err != nil {
-// 		http.Error(w, err.Error(), http.StatusBadRequest)
-// 		return
-// 	}
-// 	email := person["Email"].(string)
-// 	password := person["Password"].(string)
-// 	result := main2.InputInBasePerson(email, password)
-// 	if result == true {
-// 		fmt.Fprintf(w, "%d", 200)
-// 	} else {
-// 		fmt.Fprintf(w, "%d", 400)
-// 	}
-// }
-
-// func login(w http.ResponseWriter, r *http.Request) {
-// 	person := make(map[string]interface{})
-// 	err := json.NewDecoder(r.Body).Decode(&person)
-// 	if err != nil {
-// 		http.Error(w, err.Error(), http.StatusBadRequest)
-// 		return
-// 	}
-// 	email := person["Email"].(string)
-// 	password := person["Password"].(string)
-// 	result := main2.CheckLogin(email, password)
-// 	if result == true {
-// 		fmt.Fprintf(w, "%d", 200)
-// 	} else {
-// 		fmt.Fprintf(w, "%d", 400)
-// 	}
-// }
-
-// // Check the server status
-// func checkHealth(w http.ResponseWriter, r *http.Request) {
-// 	fmt.Fprintf(w, "OK")
-// }

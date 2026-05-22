@@ -6,5 +6,9 @@ CREATE TABLE IF NOT EXISTS groups (
     users_id INTEGER[] NOT NULL,
     admins_id INTEGER[] NOT NULL,
     enemies_id INTEGER[],
-    created_at TEXT    
+    created_at TEXT,    
+    last_message TEXT,
+    avatar_link TEXT,
+    updated_at TIMESTAMPTZ,
+    unread_count INTEGER
 )

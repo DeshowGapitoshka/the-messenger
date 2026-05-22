@@ -11,9 +11,9 @@ import (
 )
 
 type Response struct {
-	Status  int         `json:"status`
-	Message string      `json:"message`
-	Body    interface{} `json:"body`
+	Status  int         `json:"status"`
+	Message string      `json:"message"`
+	Body    interface{} `json:"body"`
 }
 
 func PostMessage(w http.ResponseWriter, r *http.Request) {
@@ -63,7 +63,7 @@ func PostMessage(w http.ResponseWriter, r *http.Request) {
 		response := Response{
 			Status:  200,
 			Message: "Вы успешно отправили сообщение",
-			Body:    nil,
+			Body:    nil, // нахуй нужен боди, если он везде пустой?
 		}
 		jsonData, err := json.Marshal(response)
 		if err != nil {
@@ -95,7 +95,7 @@ func GetMessage(w http.ResponseWriter, r *http.Request) {
 	token = token[6:]
 	user_id := tokens.CheckToken(token)
 
-	id, err := strconv.Atoi(message_id)
+	id, err := strconv.Atoi(message_id) // хули оно тут делает, почему не после определения меседж айди
 	if err != nil {
 		w.WriteHeader(500)
 		return
